@@ -1,17 +1,16 @@
-package com.example.widgetlearn.ui.home
+package com.example.widgetlearn.ui.notedetail
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,30 +30,38 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun HomeScreen(
-    onNoteClick: (Long) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+fun NoteDetailScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: NoteDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    HomeScreenContent(
+    NoteDetailScreenContent(
         uiState = uiState,
-        onNoteClick = onNoteClick
+        onNavigateBack = onNavigateBack
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeScreenContent(
-    uiState: HomeUiState,
-    onNoteClick: (Long) -> Unit,
+private fun NoteDetailScreenContent(
+    uiState: NoteDetailUiState,
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text("Notes") }
+                title = { Text("Note Detail") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -69,7 +76,7 @@ private fun HomeScreenContent(
                     CircularProgressIndicator()
                 }
             }
-            uiState.notes.isEmpty() -> {
+            uiState.note == null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -77,57 +84,49 @@ private fun HomeScreenContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No notes yet",
+                        text = "Note not found",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
             else -> {
-                LazyColumn(
+                NoteDetailContent(
+                    note = uiState.note,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.notes, key = { it.id }) { note ->
-                        NoteItem(
-                            note = note,
-                            onClick = { onNoteClick(note.id) }
-                        )
-                    }
-                }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun NoteItem(
+private fun NoteDetailContent(
     note: NoteEntity,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
+    Column(
+        modifier = modifier.padding(16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = note.content,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = formatDate(note.createdAt),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
+        Text(
+            text = note.content,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Text(
+            text = "Created: ${formatDate(note.createdAt)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        Text(
+            text = "Updated: ${formatDate(note.updatedAt)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }
 
@@ -138,37 +137,29 @@ private fun formatDate(timestamp: Long): String {
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeScreenPreview() {
+private fun NoteDetailScreenPreview() {
     WidgetLearnTheme {
-        HomeScreenContent(
-            uiState = HomeUiState(
-                notes = listOf(
-                    NoteEntity(
-                        id = 1,
-                        content = "Sample note 1",
-                        createdAt = System.currentTimeMillis(),
-                        updatedAt = System.currentTimeMillis()
-                    ),
-                    NoteEntity(
-                        id = 2,
-                        content = "Sample note 2",
-                        createdAt = System.currentTimeMillis(),
-                        updatedAt = System.currentTimeMillis()
-                    )
+        NoteDetailScreenContent(
+            uiState = NoteDetailUiState(
+                note = NoteEntity(
+                    id = 1,
+                    content = "This is a sample note content that can be quite long and detailed.",
+                    createdAt = System.currentTimeMillis(),
+                    updatedAt = System.currentTimeMillis()
                 )
             ),
-            onNoteClick = {}
+            onNavigateBack = {}
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun HomeScreenEmptyPreview() {
+private fun NoteDetailScreenLoadingPreview() {
     WidgetLearnTheme {
-        HomeScreenContent(
-            uiState = HomeUiState(),
-            onNoteClick = {}
+        NoteDetailScreenContent(
+            uiState = NoteDetailUiState(isLoading = true),
+            onNavigateBack = {}
         )
     }
 }
