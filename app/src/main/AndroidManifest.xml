@@ -34,6 +34,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/simple_color_widget_info" />
         </receiver>
+
+        <activity
+            android:name=".widget.config.WidgetConfigActivity"
+            android:exported="true"
+            android:theme="@style/Theme.WidgetLearn">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

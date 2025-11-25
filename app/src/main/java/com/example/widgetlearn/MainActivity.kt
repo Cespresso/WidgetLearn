@@ -21,13 +21,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val noteIdFromWidget = intent?.getLongExtra("noteId", -1L)?.takeIf { it != -1L }
+
         setContent {
             WidgetLearnTheme {
                 val navController = rememberNavController()
 
+                val startDestination = if (noteIdFromWidget != null) {
+                    NavRoutes.NoteDetail.createRoute(noteIdFromWidget)
+                } else {
+                    NavRoutes.Home.route
+                }
+
                 NavHost(
                     navController = navController,
-                    startDestination = NavRoutes.Home.route
+                    startDestination = startDestination
                 ) {
                     composable(route = NavRoutes.Home.route) {
                         HomeScreen(

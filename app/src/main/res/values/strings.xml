@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">WidgetLearn</string>
-    <string name="widget_description">シンプルな単色ウィジェット</string>
+    <string name="widget_description">ノートを表示するウィジェット</string>
 </resources>
