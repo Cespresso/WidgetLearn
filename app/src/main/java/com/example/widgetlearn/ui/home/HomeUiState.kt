@@ -1,6 +1,8 @@
 package com.example.widgetlearn.ui.home
 
+import com.example.widgetlearn.data.local.NoteEntity
+
 data class HomeUiState(
     val isLoading: Boolean = false,
-    val message: String = "Hello from HomeScreen"
+    val notes: List<NoteEntity> = emptyList()
 )
